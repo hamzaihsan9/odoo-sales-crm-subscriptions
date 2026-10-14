@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Menu inside Sales Application -->
+        <menuitem id="menu_sale_subscriptions_root"
+                  name="Subscriptions"
+                  parent="sale.sale_menu_root"
+                  sequence="3"/>
+
+        <menuitem id="menu_sale_subscription_contracts"
+                  name="Subscription Contracts"
+                  parent="menu_sale_subscriptions_root"
+                  action="action_recurring_subscription"
+                  sequence="10"/>
+
+        <menuitem id="menu_sale_subscription_payments"
+                  name="Payment Logs"
+                  parent="menu_sale_subscriptions_root"
+                  action="action_subscription_payment_log"
+                  groups="group_subscription_manager"
+                  sequence="20"/>
+
+        <!-- Menu inside Invoicing Application -->
+        <menuitem id="menu_account_subscriptions"
+                  name="Recurring Contracts"
+                  parent="account.menu_finance_receivables"
+                  action="action_recurring_subscription"
+                  sequence="15"/>
+    </data>
+</odoo>

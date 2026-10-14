@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # --- PostgreSQL Database Engine ---
+  db:
+    image: postgres:16-alpine
+    container_name: odoo-postgres-db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo_secure_pass_2026
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - odoo-network
+
+  # --- Odoo 17.0 Community Application Server ---
+  odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: odoo-custom-sales:17.0
+    container_name: odoo-web-app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069" # Main HTTP Web & XML-RPC
+      - "8072:8072" # Longpolling / WebSockets / LiveChat
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo_secure_pass_2026
+    volumes:
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      - ./custom_addons:/mnt/extra-addons
+      - odoo-web-data:/var/lib/odoo
+    restart: unless-stopped
+    networks:
+      - odoo-network
+
+volumes:
+  odoo-web-data:
+    name: odoo-web-data
+  odoo-db-data:
+    name: odoo-db-data
+
+networks:
+  odoo-network:
+    name: odoo-network
+    driver: bridge

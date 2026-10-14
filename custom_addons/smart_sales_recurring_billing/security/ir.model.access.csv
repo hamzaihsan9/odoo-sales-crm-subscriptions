@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_recurring_subscription_user,recurring.subscription.user,model_recurring_subscription,group_subscription_user,1,1,1,0
+access_recurring_subscription_manager,recurring.subscription.manager,model_recurring_subscription,group_subscription_manager,1,1,1,1
+access_recurring_subscription_line_user,recurring.subscription.line.user,model_recurring_subscription_line,group_subscription_user,1,1,1,0
+access_recurring_subscription_line_manager,recurring.subscription.line.manager,model_recurring_subscription_line,group_subscription_manager,1,1,1,1
+access_subscription_payment_log_user,subscription.payment.log.user,model_subscription_payment_log,group_subscription_user,1,0,0,0
+access_subscription_payment_log_manager,subscription.payment.log.manager,model_subscription_payment_log,group_subscription_manager,1,1,1,1

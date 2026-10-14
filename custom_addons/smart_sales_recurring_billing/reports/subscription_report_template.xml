@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Report Action -->
+        <record id="action_report_subscription_contract" model="ir.actions.report">
+            <field name="name">Subscription Agreement</field>
+            <field name="model">recurring.subscription</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">smart_sales_recurring_billing.report_subscription_document</field>
+            <field name="report_file">smart_sales_recurring_billing.report_subscription_document</field>
+            <field name="print_report_name">'Subscription - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_recurring_subscription"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- QWeb Report Template -->
+        <template id="report_subscription_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <h2 class="text-primary fw-bold">Recurring Subscription Contract</h2>
+                                    <h4>Reference: <span t-field="doc.name"/></h4>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <strong>Status:</strong> <span class="badge bg-secondary" t-field="doc.stage"/><br/>
+                                    <strong>Billing Frequency:</strong> <span t-field="doc.billing_cycle"/><br/>
+                                    <strong>Start Date:</strong> <span t-field="doc.start_date"/><br/>
+                                    <strong>Next Billing:</strong> <span t-field="doc.next_invoice_date"/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <strong>Billed To:</strong><br/>
+                                    <span t-field="doc.partner_id.name"/><br/>
+                                    <span t-field="doc.partner_id.street"/><br/>
+                                    <span t-field="doc.partner_id.city"/> <span t-field="doc.partner_id.country_id.name"/>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <strong>Contract Revenue:</strong><br/>
+                                    <span>Cycle Charge: <strong t-field="doc.recurring_amount" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></span><br/>
+                                    <span>Monthly Normalized (MRR): <strong t-field="doc.mrr" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></span><br/>
+                                    <span>Annualized Run Rate (ARR): <strong t-field="doc.arr" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></span>
+                                </div>
+                            </div>
+
+                            <table class="table table-bordered table-sm mt-3">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Service / Product</th>
+                                        <th>Description</th>
+                                        <th class="text-end">Qty</th>
+                                        <th class="text-end">Unit Price</th>
+                                        <th class="text-end">Discount (%)</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.line_ids" t-as="line">
+                                        <td><span t-field="line.product_id.name"/></td>
+                                        <td><span t-field="line.name"/></td>
+                                        <td class="text-end"><span t-field="line.quantity"/></td>
+                                        <td class="text-end"><span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                        <td class="text-end"><span t-field="line.discount"/>%</td>
+                                        <td class="text-end"><span t-field="line.subtotal" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="row mt-4" t-if="doc.notes">
+                                <div class="col-12">
+                                    <h5>Agreement Terms &amp; Conditions</h5>
+                                    <div t-field="doc.notes"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

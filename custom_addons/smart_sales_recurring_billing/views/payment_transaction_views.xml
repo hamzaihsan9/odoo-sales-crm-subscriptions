@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Payment Audit Log Tree View -->
+        <record id="view_subscription_payment_log_tree" model="ir.ui.view">
+            <field name="name">subscription.payment.log.tree</field>
+            <field name="model">subscription.payment.log</field>
+            <field name="arch" type="xml">
+                <tree string="Payment Gateway Transactions" create="false" decoration-success="status == 'success'" decoration-danger="status == 'failed'" decoration-warning="status == 'pending'">
+                    <field name="create_date" string="Timestamp"/>
+                    <field name="subscription_id"/>
+                    <field name="invoice_id"/>
+                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="gateway_reference"/>
+                    <field name="status" widget="badge" decoration-success="status == 'success'" decoration-danger="status == 'failed'"/>
+                    <field name="transaction_uuid" optional="hide"/>
+                    <field name="currency_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Payment Audit Log Form View -->
+        <record id="view_subscription_payment_log_form" model="ir.ui.view">
+            <field name="name">subscription.payment.log.form</field>
+            <field name="model">subscription.payment.log</field>
+            <field name="arch" type="xml">
+                <form string="Payment Gateway Transaction" create="false">
+                    <header>
+                        <button name="action_retry_charge"
+                                string="Retry Charge Capture"
+                                type="object"
+                                class="btn-warning"
+                                invisible="status != 'failed'"/>
+                        <field name="status" widget="statusbar" statusbar_visible="pending,success,failed"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group name="txn_info" string="Transaction Details">
+                                <field name="subscription_id"/>
+                                <field name="invoice_id"/>
+                                <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="create_date" readonly="1"/>
+                            </group>
+                            <group name="gateway_info" string="Gateway &amp; Security">
+                                <field name="gateway_reference"/>
+                                <field name="transaction_uuid"/>
+                                <field name="notes"/>
+                            </group>
+                        </group>
+                        <group name="diagnostics" string="Error Diagnostics" invisible="not error_message">
+                            <field name="error_message" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Payment Log Action -->
+        <record id="action_subscription_payment_log" model="ir.actions.act_window">
+            <field name="name">Payment Gateway Logs</field>
+            <field name="res_model">subscription.payment.log</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>
