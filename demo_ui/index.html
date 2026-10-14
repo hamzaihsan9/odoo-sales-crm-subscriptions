@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odoo 17 Enterprise — Smart Quotation Builder & Recurring Subscriptions</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --odoo-purple: #714B67;
+      --odoo-purple-dark: #573a4f;
+      --odoo-purple-light: #f5eff3;
+      --odoo-teal: #008784;
+      --odoo-bg: #F8F9FA;
+      --odoo-sheet-bg: #FFFFFF;
+      --odoo-border: #E0E2E6;
+    }
+    body {
+      background-color: var(--odoo-bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #2b2b2b;
+      margin: 0;
+      padding: 0;
+    }
+    .odoo-navbar {
+      background-color: var(--odoo-purple);
+      color: white;
+      padding: 0 1rem;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .odoo-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      text-decoration: none;
+    }
+    .odoo-app-icon {
+      width: 28px;
+      height: 28px;
+      background: white;
+      color: var(--odoo-purple);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .odoo-nav-tabs {
+      display: flex;
+      gap: 4px;
+      height: 100%;
+    }
+    .odoo-tab-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.8);
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .odoo-tab-btn:hover {
+      color: white;
+      background: rgba(255,255,255,0.08);
+    }
+    .odoo-tab-btn.active {
+      color: white;
+      border-bottom-color: white;
+      background: rgba(255,255,255,0.12);
+    }
+    .odoo-control-panel {
+      background: white;
+      border-bottom: 1px solid var(--odoo-border);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .odoo-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      margin: 0;
+    }
+    .odoo-breadcrumb strong {
+      font-size: 18px;
+      color: var(--odoo-purple);
+    }
+    .odoo-sheet {
+      background: white;
+      border: 1px solid var(--odoo-border);
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      padding: 28px;
+      margin: 20px auto;
+      max-width: 1200px;
+    }
+    .kpi-card {
+      background: white;
+      border: 1px solid var(--odoo-border);
+      border-radius: 8px;
+      padding: 16px;
+      transition: transform 0.15s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .kpi-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6c757d;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #212529;
+    }
+    .kpi-trend {
+      font-size: 12px;
+      color: var(--odoo-teal);
+      font-weight: 500;
+    }
+    .badge-margin-high {
+      background-color: #d1e7dd;
+      color: #0f5132;
+      border: 1px solid #badbcc;
+    }
+    .badge-margin-med {
+      background-color: #fff3cd;
+      color: #664d03;
+      border: 1px solid #ffecb5;
+    }
+    .badge-margin-low {
+      background-color: #f8d7da;
+      color: #842029;
+      border: 1px solid #f5c2c7;
+    }
+    .terminal-console {
+      background: #1e1e24;
+      color: #a9b7c6;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 13px;
+      padding: 16px;
+      border-radius: 8px;
+      min-height: 180px;
+      max-height: 320px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+    .terminal-line-success {
+      color: #4cd964;
+    }
+    .terminal-line-info {
+      color: #5ac8fa;
+    }
+    .terminal-line-warn {
+      color: #ffcc00;
+    }
+    .btn-odoo-primary {
+      background-color: var(--odoo-purple);
+      color: white;
+      border: none;
+    }
+    .btn-odoo-primary:hover {
+      background-color: var(--odoo-purple-dark);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Odoo Navigation Bar -->
+  <header class="odoo-navbar">
+    <div class="d-flex align-items-center gap-3">
+      <a href="#" class="odoo-brand">
+        <div class="odoo-app-icon">O</div>
+        <span>Odoo 17 Enterprise</span>
+      </a>
+      <nav class="odoo-nav-tabs">
+        <button class="odoo-tab-btn active" onclick="switchTab('quote')">
+          <i class="fa-solid fa-file-invoice-dollar"></i> Smart Quotations
+        </button>
+        <button class="odoo-tab-btn" onclick="switchTab('subscriptions')">
+          <i class="fa-solid fa-arrows-rotate"></i> Subscriptions (<span id="tabSubCount">2</span>)
+        </button>
+        <button class="odoo-tab-btn" onclick="switchTab('invoices')">
+          <i class="fa-solid fa-receipt"></i> Invoices (<span id="tabInvCount">1</span>)
+        </button>
+        <button class="odoo-tab-btn" onclick="switchTab('cron')">
+          <i class="fa-solid fa-clock"></i> Automated Cron (ir.cron)
+        </button>
+      </nav>
+    </div>
+    <div class="d-flex align-items-center gap-3 small">
+      <span class="badge bg-light text-dark border">
+        <i class="fa-solid fa-server text-success me-1"></i> Running on Port 8069
+      </span>
+      <span><i class="fa-solid fa-circle-user me-1"></i> Administrator (Sales Manager)</span>
+    </div>
+  </header>
+
+  <!-- Dynamic Tab 1: Smart Quotation Builder -->
+  <main id="tabQuote">
+    <div class="odoo-control-panel">
+      <div class="odoo-breadcrumb">
+        <span>Quotations</span>
+        <span>/</span>
+        <strong id="quoteTitle">S00042</strong>
+        <span class="badge bg-secondary ms-2" id="quoteStateBadge">Draft Quotation</span>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-warning btn-sm" id="btnApproveDiscount" onclick="approveHighDiscount()" style="display: none;">
+          <i class="fa-solid fa-user-shield me-1"></i> Approve High Discount
+        </button>
+        <button class="btn btn-odoo-primary btn-sm px-3" id="btnConfirmQuote" onclick="confirmQuote()">
+          <i class="fa-solid fa-check me-1"></i> Confirm Order
+        </button>
+      </div>
+    </div>
+
+    <div class="container my-3">
+      <!-- High Discount Guardrail Alert Banner -->
+      <div class="alert alert-warning border-warning shadow-sm" id="discountAlert" style="display: none;">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <strong><i class="fa-solid fa-triangle-exclamation me-2"></i> Manager Approval Required:</strong>
+            One or more line discounts exceed the <strong>20% threshold</strong>. A Sales Manager must authorize this deal before order confirmation.
+          </div>
+          <button class="btn btn-sm btn-outline-dark" onclick="approveHighDiscount()">
+            Approve as Manager
+          </button>
+        </div>
+      </div>
+
+      <div class="odoo-sheet">
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label small text-muted text-uppercase fw-bold">Customer Account</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-regular fa-building"></i></span>
+              <input type="text" class="form-control" id="customerName" value="Acme Enterprise Corp" readonly>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small text-muted text-uppercase fw-bold">Pricing Tier</label>
+            <select class="form-select" id="pricingTierSelect" onchange="updateTier()">
+              <option value="standard">Standard Tier (0% discount)</option>
+              <option value="enterprise" selected>Enterprise Tier (10% discount)</option>
+              <option value="strategic">Strategic Partner (20% discount)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small text-muted text-uppercase fw-bold">Billing Frequency</label>
+            <select class="form-select" id="billingCycleSelect" onchange="updateCycle()">
+              <option value="monthly" selected>Monthly (30 Days)</option>
+              <option value="quarterly">Quarterly (90 Days)</option>
+              <option value="annually">Annual (365 Days)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Margin & Profitability Diagnostic Ribbon -->
+        <div class="p-3 mb-4 rounded-3 border bg-light d-flex justify-content-around text-center">
+          <div>
+            <div class="small text-muted fw-semibold">Quotation Revenue</div>
+            <div class="h5 mb-0 fw-bold text-dark" id="diagRevenue">$0.00</div>
+          </div>
+          <div class="border-end"></div>
+          <div>
+            <div class="small text-muted fw-semibold">Product Cost Basis</div>
+            <div class="h5 mb-0 fw-bold text-muted" id="diagCost">$0.00</div>
+          </div>
+          <div class="border-end"></div>
+          <div>
+            <div class="small text-muted fw-semibold">Gross Profit Margin</div>
+            <div class="h5 mb-0 fw-bold" id="diagMarginContainer">
+              <span class="badge badge-margin-high" id="diagMarginBadge">0.00%</span>
+            </div>
+          </div>
+        </div>
+
+        <h6 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2 text-muted"></i> Quotation Line Items</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-light small">
+              <tr>
+                <th style="width: 40%;">Product / SaaS Service</th>
+                <th style="width: 10%;">Qty</th>
+                <th style="width: 15%;">Unit Price ($)</th>
+                <th style="width: 15%;">Unit Cost ($)</th>
+                <th style="width: 10%;">Discount (%)</th>
+                <th style="width: 10%;" class="text-end">Subtotal ($)</th>
+              </tr>
+            </thead>
+            <tbody id="quoteLinesBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <button class="btn btn-outline-secondary btn-sm" onclick="addLine()">
+            <i class="fa-solid fa-plus me-1"></i> Add Service Line
+          </button>
+          <div class="text-end">
+            <span class="small text-muted me-2">Recurring Subscription Contract will be automatically created upon order confirmation.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Dynamic Tab 2: Recurring Subscriptions -->
+  <main id="tabSubscriptions" style="display: none;">
+    <div class="odoo-control-panel">
+      <div class="odoo-breadcrumb">
+        <strong>Subscription Contracts &amp; ARR Engine</strong>
+      </div>
+      <div>
+        <button class="btn btn-odoo-primary btn-sm" onclick="switchTab('cron')">
+          <i class="fa-solid fa-bolt me-1"></i> Run Invoicing Cron
+        </button>
+      </div>
+    </div>
+
+    <div class="container my-3">
+      <!-- KPI Metrics Strip -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Active Subscriptions</div>
+            <div class="kpi-value text-primary" id="kpiActiveCount">0</div>
+            <div class="kpi-trend"><i class="fa-solid fa-shield-halved me-1"></i> 100% Retained</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Monthly Recurring Revenue (MRR)</div>
+            <div class="kpi-value text-success" id="kpiTotalMrr">$0.00</div>
+            <div class="kpi-trend"><i class="fa-solid fa-arrow-up me-1"></i> Normalized 30-Day Rate</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Annual Recurring Revenue (ARR)</div>
+            <div class="kpi-value text-dark" id="kpiTotalArr">$0.00</div>
+            <div class="kpi-trend"><i class="fa-solid fa-chart-line me-1"></i> Annualized Run-Rate</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Invoices Processed</div>
+            <div class="kpi-value text-info" id="kpiInvoiceCount">0</div>
+            <div class="kpi-trend"><i class="fa-solid fa-check-double me-1"></i> Auto-Debit Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscriptions Grid -->
+      <div class="row g-3" id="subscriptionsContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Dynamic Tab 3: Customer Invoices -->
+  <main id="tabInvoices" style="display: none;">
+    <div class="odoo-control-panel">
+      <div class="odoo-breadcrumb">
+        <strong>Customer Invoices (account.move)</strong>
+      </div>
+    </div>
+    <div class="container my-3">
+      <div class="odoo-sheet">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light small">
+              <tr>
+                <th>Invoice Number</th>
+                <th>Source Subscription</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Payment Gateway Reference</th>
+                <th>Amount ($)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="invoicesTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Dynamic Tab 4: Automated Cron Simulator -->
+  <main id="tabCron" style="display: none;">
+    <div class="odoo-control-panel">
+      <div class="odoo-breadcrumb">
+        <strong>Automated Cron Scheduler (ir.cron Simulator)</strong>
+      </div>
+      <div>
+        <button class="btn btn-success btn-sm px-3" onclick="triggerCron()">
+          <i class="fa-solid fa-play me-1"></i> Execute Daily Invoicing Run
+        </button>
+      </div>
+    </div>
+    <div class="container my-3">
+      <div class="odoo-sheet">
+        <div class="row align-items-center mb-3">
+          <div class="col-md-8">
+            <h5 class="fw-bold mb-1"><i class="fa-solid fa-robot text-primary me-2"></i> Odoo Background Worker</h5>
+            <p class="text-muted small mb-0">
+              In production, Odoo executes <code>_cron_process_recurring_invoices()</code> daily at midnight.
+              It finds all <code>active</code> subscriptions where <code>next_invoice_date &lt;= Today</code>,
+              automatically generates customer invoices (<code>account.move</code>), advances next billing dates by cycle frequency,
+              and attempts auto-debit payments via payment tokens.
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <button class="btn btn-success" onclick="triggerCron()">
+              <i class="fa-solid fa-play me-1"></i> Run Scheduled Job Now
+            </button>
+          </div>
+        </div>
+
+        <div class="terminal-console" id="cronConsole">
+          <div class="terminal-line-info">[SYSTEM BOOT] ir.cron scheduler initialized with 1 active subscription job.</div>
+          <div class="text-muted">[STANDBY] Waiting for scheduled trigger... Click 'Run Scheduled Job Now' above.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let globalState = null;
+
+    async function fetchState() {
+      try {
+        const res = await fetch('/api/state');
+        globalState = await res.json();
+        renderAll();
+      } catch (err) {
+        console.error("Failed to fetch state:", err);
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.odoo-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('main').forEach(m => m.style.display = 'none');
+
+      if (tabId === 'quote') {
+        document.querySelector('.odoo-tab-btn:nth-child(1)').classList.add('active');
+        document.getElementById('tabQuote').style.display = 'block';
+      } else if (tabId === 'subscriptions') {
+        document.querySelector('.odoo-tab-btn:nth-child(2)').classList.add('active');
+        document.getElementById('tabSubscriptions').style.display = 'block';
+      } else if (tabId === 'invoices') {
+        document.querySelector('.odoo-tab-btn:nth-child(3)').classList.add('active');
+        document.getElementById('tabInvoices').style.display = 'block';
+      } else if (tabId === 'cron') {
+        document.querySelector('.odoo-tab-btn:nth-child(4)').classList.add('active');
+        document.getElementById('tabCron').style.display = 'block';
+      }
+    }
+
+    function renderAll() {
+      if (!globalState) return;
+      renderQuote();
+      renderSubscriptions();
+      renderInvoices();
+      renderCronLogs();
+    }
+
+    function renderQuote() {
+      const q = globalState.active_quote;
+      const diag = globalState.quote_diagnostics;
+
+      document.getElementById('quoteTitle').textContent = q.id;
+      document.getElementById('customerName').value = q.partner;
+      document.getElementById('pricingTierSelect').value = q.tier;
+      document.getElementById('billingCycleSelect').value = q.billing_cycle;
+
+      // Diagnostic cards
+      document.getElementById('diagRevenue').textContent = '$' + diag.total_untaxed.toLocaleString(undefined, {minimumFractionDigits: 2});
+      document.getElementById('diagCost').textContent = '$' + diag.total_cost.toLocaleString(undefined, {minimumFractionDigits: 2});
+      
+      const badge = document.getElementById('diagMarginBadge');
+      badge.textContent = diag.margin_pct.toFixed(2) + '%';
+      badge.className = 'badge ' + (diag.margin_pct >= 30 ? 'badge-margin-high' : diag.margin_pct >= 15 ? 'badge-margin-med' : 'badge-margin-low');
+
+      // High-Discount guardrail alert
+      const discountAlert = document.getElementById('discountAlert');
+      const btnApprove = document.getElementById('btnApproveDiscount');
+      if (diag.require_approval && !q.discount_approved) {
+        discountAlert.style.display = 'block';
+        btnApprove.style.display = 'inline-block';
+      } else {
+        discountAlert.style.display = 'none';
+        btnApprove.style.display = 'none';
+      }
+
+      const stateBadge = document.getElementById('quoteStateBadge');
+      if (q.state === 'sale') {
+        stateBadge.textContent = 'Sales Order (Confirmed)';
+        stateBadge.className = 'badge bg-success ms-2';
+        document.getElementById('btnConfirmQuote').disabled = true;
+      } else {
+        stateBadge.textContent = 'Draft Quotation';
+        stateBadge.className = 'badge bg-secondary ms-2';
+        document.getElementById('btnConfirmQuote').disabled = false;
+      }
+
+      // Render line items
+      const tbody = document.getElementById('quoteLinesBody');
+      tbody.innerHTML = '';
+      q.lines.forEach((l, idx) => {
+        const subtotal = l.qty * l.price * (1 - (l.discount || 0) / 100);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" class="form-control form-control-sm" value="${l.product}" onchange="updateLine(${idx}, 'product', this.value)"></td>
+          <td><input type="number" class="form-control form-control-sm" value="${l.qty}" min="1" onchange="updateLine(${idx}, 'qty', this.value)"></td>
+          <td><input type="number" class="form-control form-control-sm" value="${l.price}" step="50" onchange="updateLine(${idx}, 'price', this.value)"></td>
+          <td><input type="number" class="form-control form-control-sm" value="${l.cost || 0}" step="50" onchange="updateLine(${idx}, 'cost', this.value)"></td>
+          <td>
+            <input type="number" class="form-control form-control-sm ${l.discount > 20 ? 'is-invalid border-danger' : ''}" value="${l.discount || 0}" min="0" max="90" onchange="updateLine(${idx}, 'discount', this.value)">
+          </td>
+          <td class="text-end fw-bold">$${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSubscriptions() {
+      const subs = globalState.subscriptions;
+      const metrics = globalState.metrics;
+
+      document.getElementById('tabSubCount').textContent = subs.length;
+      document.getElementById('kpiActiveCount').textContent = metrics.active_count;
+      document.getElementById('kpiTotalMrr').textContent = '$' + metrics.total_mrr.toLocaleString(undefined, {minimumFractionDigits: 2});
+      document.getElementById('kpiTotalArr').textContent = '$' + metrics.total_arr.toLocaleString(undefined, {minimumFractionDigits: 2});
+      document.getElementById('kpiInvoiceCount').textContent = metrics.total_invoices;
+
+      const container = document.getElementById('subscriptionsContainer');
+      container.innerHTML = '';
+
+      subs.forEach(s => {
+        const col = document.createElement('div');
+        col.className = 'col-md-6';
+        col.innerHTML = `
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+              <div>
+                <span class="fw-bold text-dark h6 mb-0">${s.id}</span>
+                <span class="badge rounded-pill text-bg-light border ms-2 text-capitalize">${s.billing_cycle}</span>
+              </div>
+              <span class="badge ${s.stage === 'active' ? 'bg-success' : 'bg-warning text-dark'} text-uppercase">${s.stage}</span>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title fw-bold text-primary mb-1">${s.partner}</h5>
+              <div class="small text-muted mb-3"><i class="fa-solid fa-link me-1"></i> Origin: ${s.origin} | Started: ${s.start_date}</div>
+
+              <div class="d-flex justify-content-between p-2 rounded bg-light mb-3">
+                <div>
+                  <span class="small text-muted d-block">Monthly (MRR)</span>
+                  <strong class="text-success h6">$${s.mrr.toLocaleString(undefined, {minimumFractionDigits: 2})}</strong>
+                </div>
+                <div>
+                  <span class="small text-muted d-block">Annual (ARR)</span>
+                  <strong class="text-dark h6">$${s.arr.toLocaleString(undefined, {minimumFractionDigits: 2})}</strong>
+                </div>
+                <div>
+                  <span class="small text-muted d-block">Next Invoicing</span>
+                  <strong class="text-danger h6"><i class="fa-regular fa-calendar me-1"></i>${s.next_invoice_date}</strong>
+                </div>
+              </div>
+
+              <h6 class="small fw-bold text-muted text-uppercase mb-2">Service Lines</h6>
+              <ul class="list-group list-group-flush small mb-3">
+                ${s.lines.map(l => `<li class="list-group-item d-flex justify-content-between px-0 py-1"><span>${l.product} (x${l.qty})</span> <span class="fw-semibold">$${(l.price * l.qty).toLocaleString()}</span></li>`).join('')}
+              </ul>
+
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <span class="small text-muted"><i class="fa-solid fa-credit-card me-1 text-success"></i> Auto-Debit: Active</span>
+                <button class="btn btn-sm ${s.stage === 'active' ? 'btn-outline-warning' : 'btn-outline-success'}" onclick="togglePause('${s.id}')">
+                  ${s.stage === 'active' ? '<i class="fa-solid fa-pause me-1"></i> Hold Subscription' : '<i class="fa-solid fa-play me-1"></i> Resume Contract'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(col);
+      });
+    }
+
+    function renderInvoices() {
+      const invs = globalState.invoices;
+      document.getElementById('tabInvCount').textContent = invs.length;
+
+      const tbody = document.getElementById('invoicesTableBody');
+      tbody.innerHTML = '';
+      invs.forEach(inv => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="fw-bold text-primary">${inv.id}</td>
+          <td><span class="badge bg-light text-dark border">${inv.subscription_id}</span></td>
+          <td>${inv.partner}</td>
+          <td>${inv.date}</td>
+          <td><code>${inv.gateway_ref}</code></td>
+          <td class="fw-bold">$${inv.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+          <td><span class="badge bg-success text-uppercase">${inv.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCronLogs() {
+      const consoleEl = document.getElementById('cronConsole');
+      if (globalState.cron_logs && globalState.cron_logs.length > 0) {
+        consoleEl.innerHTML = globalState.cron_logs.map(log => {
+          if (log.includes('[CRON SUCCESS]')) {
+            return `<div class="terminal-line-success">${log}</div>`;
+          }
+          return `<div class="terminal-line-info">${log}</div>`;
+        }).join('');
+      }
+    }
+
+    async function updateTier() {
+      const tier = document.getElementById('pricingTierSelect').value;
+      await fetch('/api/quote/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({tier})
+      });
+      fetchState();
+    }
+
+    async function updateCycle() {
+      const billing_cycle = document.getElementById('billingCycleSelect').value;
+      await fetch('/api/quote/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({billing_cycle})
+      });
+      fetchState();
+    }
+
+    async function updateLine(idx, field, value) {
+      const q = globalState.active_quote;
+      q.lines[idx][field] = field === 'product' ? value : parseFloat(value) || 0;
+      await fetch('/api/quote/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({lines: q.lines})
+      });
+      fetchState();
+    }
+
+    async function addLine() {
+      const q = globalState.active_quote;
+      q.lines.push({
+        product: "Enterprise Addon / Cloud Service",
+        qty: 1,
+        price: 1500.0,
+        cost: 450.0,
+        discount: 0.0
+      });
+      await fetch('/api/quote/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({lines: q.lines})
+      });
+      fetchState();
+    }
+
+    async function approveHighDiscount() {
+      await fetch('/api/quote/approve-discount', {method: 'POST'});
+      fetchState();
+    }
+
+    async function confirmQuote() {
+      try {
+        const res = await fetch('/api/quote/confirm', {method: 'POST'});
+        const data = await res.json();
+        if (!res.ok) {
+          alert("❌ Guardrail Block: " + data.error);
+          return;
+        }
+        alert("✔ " + data.message);
+        await fetchState();
+        switchTab('subscriptions');
+      } catch (err) {
+        alert("Confirmation failed: " + err);
+      }
+    }
+
+    async function triggerCron() {
+      const res = await fetch('/api/cron/run', {method: 'POST'});
+      const data = await res.json();
+      await fetchState();
+    }
+
+    async function togglePause(id) {
+      await fetch('/api/subscription/toggle-pause', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id})
+      });
+      fetchState();
+    }
+
+    // Initial load
+    fetchState();
+  </script>
+</body>
+</html>
