@@ -453,7 +453,84 @@
   </main>
 
   <script>
-    let globalState = null;
+    let globalState = {
+      active_quote: {
+        id: "S00042",
+        partner: "Acme Enterprise Corp",
+        tier: "enterprise",
+        is_subscription: true,
+        billing_cycle: "monthly",
+        state: "draft",
+        discount_approved: false,
+        lines: [
+          {product: "Cloud ERP Platform License (Monthly)", qty: 5, price: 1000.0, cost: 350.0, discount: 10.0},
+          {product: "24/7 Premium SLA Dedicated Support", qty: 1, price: 2500.0, cost: 800.0, discount: 10.0}
+        ]
+      },
+      quote_diagnostics: {
+        total_untaxed: 6750.0,
+        total_cost: 2550.0,
+        margin_pct: 62.22,
+        require_approval: false
+      },
+      subscriptions: [
+        {
+          id: "SUB/2026/0001",
+          origin: "S00038",
+          partner: "TechVentures Global",
+          billing_cycle: "monthly",
+          stage: "active",
+          start_date: "2026-09-01",
+          next_invoice_date: "2026-10-14",
+          payment_status: "paid",
+          auto_debit: true,
+          mrr: 3500.0,
+          arr: 42000.0,
+          cycle_amount: 3500.0,
+          lines: [
+            {product: "Dedicated High-Performance Postgres Cluster", qty: 1, price: 2000.0, discount: 0.0},
+            {product: "Enterprise API & Webhook Suite", qty: 1, price: 1500.0, discount: 0.0}
+          ]
+        },
+        {
+          id: "SUB/2026/0002",
+          origin: "S00039",
+          partner: "Systems Soft PK",
+          billing_cycle: "annually",
+          stage: "active",
+          start_date: "2026-01-15",
+          next_invoice_date: "2026-10-14",
+          payment_status: "paid",
+          auto_debit: true,
+          mrr: 1200.0,
+          arr: 14400.0,
+          cycle_amount: 14400.0,
+          lines: [
+            {product: "Cloud ERP Platform License (Annual)", qty: 12, price: 1200.0, discount: 0.0}
+          ]
+        }
+      ],
+      invoices: [
+        {
+          id: "INV/2026/0014",
+          subscription_id: "SUB/2026/0001",
+          partner: "TechVentures Global",
+          date: "2026-09-01",
+          amount: 3500.0,
+          status: "paid",
+          gateway_ref: "AUTO_SIM_INV_0014_20260901"
+        }
+      ],
+      cron_logs: [],
+      metrics: {
+        total_mrr: 4700.0,
+        total_arr: 56400.0,
+        active_count: 2,
+        total_invoices: 1
+      }
+    };
+
+    renderAll();
 
     async function fetchState() {
       try {
@@ -732,6 +809,13 @@
 
     // Initial load
     fetchState();
+
+    // Direct tab routing via URL hash or search parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab') || window.location.hash.replace('#', '');
+    if (initialTab && initialTab !== 'quote') {
+      switchTab(initialTab);
+    }
   </script>
 </body>
 </html>

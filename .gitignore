@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+desktop_screenshot*.png
+odoo_preview*.png
+
